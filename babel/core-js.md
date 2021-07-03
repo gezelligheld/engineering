@@ -80,4 +80,6 @@ import "core-js/features"; // equivalent to ` import "core-js";
 
 所有core-js的polyfill，底层的机制都是由internals和modules内部的module来完成的，并没有提供命名空间，不可以直接引入，因为这些内部实现在迭代中可能随时变化
 
+core-js 通过向原型属性prototype或全局注入方法来实现polyfill
+
 (源码地址)[https://github.com/zloirock/core-js/tree/master/packages/core-js]

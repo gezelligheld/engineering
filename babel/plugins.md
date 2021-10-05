@@ -88,6 +88,8 @@ const plugins = [
 
 #### 原理
 
+babel 的工作原理就是将 ES6 的代码解析生成ES6的AST，然后将 ES6 的 AST 转换为 ES5 的AST,最后才将 ES5 的 AST 转化为具体的 ES5 代码
+
 1. 解析
 
 1.1 词法分析

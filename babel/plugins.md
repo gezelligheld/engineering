@@ -1,16 +1,16 @@
-plugin会将一些新特性如for of、let、Set、Map、箭头函数等作polyfillß
+babel 本身不具有任何转化功能，它把转化的功能都分解到一个个 plugin 里面，当不配置任何插件时，经过 babel 的代码和输入是相同的。plugin会将一些新特性如for of、let、Set、Map、箭头函数等作polyfill
+
+明确一点，babel 的运行总共分为三个阶段：解析，转换，生成
 
 #### 分类
 
-babel的plugin分为三类
-
 ##### syntax 语法类
 
-syntax类plugin用于ES新语法的转换，会被transform类或proposal类依赖，用于语法解析
+即语法插件，用于ES新语法的转换，在解析这一步使 babel 能够解析更多的语法
 
 ##### transform 转换类
 
-有以下几个类别
+即转译插件，有以下几个类别
 
 - ES3 对ES3的一些特性做转换
 
@@ -33,8 +33,6 @@ syntax类plugin用于ES新语法的转换，会被transform类或proposal类依�
 - React 用于react代码转换
 
 - Other 其它
-
-##### proposal 也是转换类，指代那些对ES Proposal进行转换的plugin
 
 #### 使用
 

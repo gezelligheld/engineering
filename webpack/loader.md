@@ -1,6 +1,6 @@
 #### 概念
 
-webpack的编译器，它使得webpack可以处理一些非JavaScript文件，比如png、csv、xml、css、json等，使用合适的loader可以让JavaScript的import导入非JavaScript模块
+webpack的编译器，它使得webpack可以处理一些非JavaScript文件，比如png、csv、xml、css、json等，使用合适的loader可以让JavaScript的import导入非JavaScript模块，最终打包编译为标准的js代码
 
 > loader的执行顺序和配置顺序是相反的，配置的最后一个loader先执行
 
@@ -8,9 +8,7 @@ webpack的编译器，它使得webpack可以处理一些非JavaScript文件，�
 
 - file-loader
 
-加载文件
-
-- url-loader
+把文件输出到一个文件夹中，在代码中通过相对路径去引用输出的文件
 
 ```js
 const config = {
@@ -25,6 +23,8 @@ const config = {
     }
 }
 ```
+
+- url-loader
 
 加载文件，可以设置阈值，小于阈值时把文件转为base64编码，这样无需再从服务器拉取图片
 
@@ -194,3 +194,7 @@ const config = {
     }
 };
 ```
+
+#### 自定义loader
+
+// todo

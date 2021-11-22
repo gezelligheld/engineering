@@ -106,5 +106,19 @@ module.exports = {
 }
 ```
 
+- webpack-bundle-analyzer
+
+可视化 Webpack 输出文件的体积
+
+#### loader和plugin的区别
+
+- loader：对其他类型的资源进行转译的预处理工作，编译为js代码
+
+- plugin：可以扩展 Webpack 的功能，在 Webpack 运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在合适的时机通过 Webpack 提供的 API 改变输出结果
+
+#### 自定义plugin
+
+// todo
+
 参考文档
 1. [你真的需要DllPlugin吗](https://www.bilibili.com/read/cv6118617/)

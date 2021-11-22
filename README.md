@@ -7,6 +7,8 @@
     - 构建原理
     - 构建速度如何优化
     - 产出体积如何优化
+    - loader
+    - plugin
 
 - cli
 
@@ -17,11 +19,10 @@
     - 单元测试
     - 安全测试
 
-- css
-
-    - 预处理器 less，sass，stylus，css-next
-    - 后处理器，postcss 插件，autofixer 等
-
 - rollup
 
-- node.js
+- node
+
+- CI
+
+- CD

@@ -4,11 +4,12 @@
 
 - webpack
 
-    - 构建原理
-    - 构建速度如何优化
-    - 产出体积如何优化
-    - loader
-    - plugin
+    - 自定义loader
+    - 自定义plugin
+
+- babel
+
+    - 自定义babel插件
 
 - cli
 

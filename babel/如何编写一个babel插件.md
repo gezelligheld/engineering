@@ -277,3 +277,4 @@ export default function({ types: t }) {
 
 参考
 1. (babel插件手册官方文档)[https://github.com/jamiebuilds/babel-handbook/blob/master/translations/zh-Hans/plugin-handbook.md]
+2. (babel插件示例)[https://github.com/QuarkGluonPlasma/babel-plugin-exercize]

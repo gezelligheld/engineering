@@ -4,15 +4,6 @@
 
 - git 版本管理
 
-- webpack
-
-  - 自定义 loader
-  - 自定义 plugin
-
-- babel
-
-  - 自定义 babel 插件
-
 - cli
 
   - 如何搭建一个脚手架
@@ -29,3 +20,14 @@
 - CI
 
 - CD
+
+#### 知识点
+
+- babel（作用、plugin、preset、core-js、runtime）
+- 打包（webpack 代码拆分、构建原理、热替换、产出大小优化、构建速度优化、loader、plugin、tree shaking，rollup，vite）
+- 移动端（自适应布局、其他适配问题）
+- server（docker、IIS、nginx）
+- 其他（监控、埋点、包管理工具）
+- git
+- node
+- 单元测试

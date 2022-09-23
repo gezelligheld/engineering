@@ -25,3 +25,9 @@
 [mapbox-gl](https://www.npmjs.com/package/mapbox-gl)：地图插件
 
 [pinyin-pro](https://www.npmjs.com/package/pinyin-pro)：汉字转拼音
+
+[react-draggable](https://www.npmjs.com/package/react-draggable)：使元素可拖拽
+
+[react-flow-renderer](https://reactflow.dev/docs/introduction/)：流程图
+
+[konva](https://www.npmjs.com/package/konva)：canvas 库，还有 react-konva 可以以组件的形式调用 canvas 库

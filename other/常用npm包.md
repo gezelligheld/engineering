@@ -28,6 +28,18 @@
 
 [react-draggable](https://www.npmjs.com/package/react-draggable)：使元素可拖拽
 
+[dnd-kit](https://docs.dndkit.com/)：功能更为强大的专门用于 react 的拖放工具包
+
 [react-flow-renderer](https://reactflow.dev/docs/introduction/)：流程图
 
 [konva](https://www.npmjs.com/package/konva)：canvas 库，还有 react-konva 可以以组件的形式调用 canvas 库
+
+[lottie-web](https://www.npmjs.com/package/lottie-react-web)：以 json 的形式配置动画
+
+[query-string](https://www.npmjs.com/package/query-string)：解析 URL
+
+[js-cookie](https://www.npmjs.com/package/js-cookie)；处理 cookie
+
+[simplebar-react](https://www.npmjs.com/package/simplebar-react)：滚动容器
+
+[react-color](https://www.npmjs.com/package/react-color)：颜色选择器

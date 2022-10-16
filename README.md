@@ -1,13 +1,5 @@
 前端工程化，包括打包、编译等
 
-#### todo
-
-- 单元测试
-- 安全测试
-- node
-- CI
-- CD
-
 #### 知识点
 
 ##### babel（作用、plugin、preset、core-js、runtime）

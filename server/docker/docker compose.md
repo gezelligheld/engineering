@@ -2,15 +2,20 @@ Docker Compose 是 Docker 官方编排项目之一，进行多容器应用的部
 
 使用 docker-compose 我们主要的任务是编写 docker-compose.yml 文件
 
-```
-version: '3' # 定义版本，不指定默认为版本 1，新版本功能更多
+```bash
+# docker-compose版本
+version: '3'
 
-services: # 定义不同的应用服务
-   db: # 名称，它也是 network 中 DNS 名称
+services: # 声明容器
+   db: # 容器名称
      image: mysql:5.7 # 镜像，如果像自定义镜像可以不指定这个参数，而用 build
+     build: . # 根据Dockerfile配置构建镜像
+     build: # 指定Dockerfile路径
+      context: ..
+      dockerfile: ./devops/Dockerfile
      volumes: # 定义数据卷，类似 -v
-       - db_data:/var/lib/mysql
-       - .:/aaa # 挂载当前目录到容器中的 /aaa 无需使用绝对路径
+       - ./:/app:ro
+       - ./node_modules # 忽略node_modules
      restart: always # 类似 --restart
      # 'no' 默认，不自动重启，以为 no 是 yaml 关键字所以加引号
      # always 总是自动重启
@@ -21,7 +26,7 @@ services: # 定义不同的应用服务
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: wordpress
-   wordpress: # 第二个容器
+   wordpress: # 容器名称
      labels:
        com.example.description: "This label will appear on all containers for the web service"
      # 为容器添加 Docker 元数据（metadata）信息。例如可以为容器添加辅助说明信息。
@@ -31,7 +36,7 @@ services: # 定义不同的应用服务
      # 我们指定只启动 wordpress，db 也会跟着启动
        - db
      image: wordpress:latest
-     ports: # 端口，类似 -p
+     ports: # 主机端口和容器端口的映射，类似 -p
        - "8000:80"
      restart: always
      environment:
@@ -45,21 +50,7 @@ volumes: # 可选，需要创建的数据卷，类似 docker volume create
 networks: # 可选，需要创建的网络，类似 docker network create
 ```
 
-写好 Dockerfile 后，通过配置 docker-compose.yml 的 build 字段去指定 Dockerfile
-
-```
-version: '3'
-services:
-  ruijieportal-svc:
-    # image: aicregistry.azurecr.cn/platform/ruijieportal/ue:v1.0.0.1
-    build:
-      context: ..
-      dockerfile: ./devops/Dockerfile
-    ports:
-      - "80:80"
-```
-
-然后执行下面的语句启动应用
+然后运行容器
 
 ```
 docker-compose up -d
@@ -67,7 +58,7 @@ docker-compose up -d
 
 其他命令
 
-```
+```bash
 # 停止服务
 docker-compose down
 

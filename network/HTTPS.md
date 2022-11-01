@@ -10,20 +10,20 @@ SSL（安全套接字层），在 OSI 七层模型中处于会话层(第 5 层)�
 
 ![](../assets/TLS1.2.awebp)
 
-1. 浏览器发送随机数 client_random、TLS 版本、加密方法列表，client_random 用于最终生成密钥，加密方法列表示例如下
+1. 浏览器发送随机数 client_random、TLS 版本、加密套件，client_random 用于最终生成密钥，加密套件是不同加密方法组合，加密套件示例如下
 
 ```less
 // TLS握手过程中，使用ECDHE算法生成pre_random，128位的AES算法进行对称加密，在对称加密的过程中使用主流的GCM分组模式，采用SHA256算法标识服务端身份
 TLS_ECDHE_WITH_AES_128_GCM_SHA256
 ```
 
-2. 服务端响应随机数 server_random、server_params，确认 TLS 版本、需要使用的加密套件和数字证书（包含公钥），server_random 用于最终生成密钥
+2. 服务端响应随机数 server_random、server_params，确认 TLS 版本、需要使用的加密套件和数字证书（包含公钥），server_random 用于最终生成会话密钥
 
-3. 客户端验证服务端传来的证书和签名是否通过，如果验证通过，客户端结合 server_params、client_params 利用 ECDHE 算法计算出 pre_random，并用公钥加密传递给服务端，然后结合 server_params、client_params、pre_random 通过一个伪随机函数计算出最终的密钥
+3. 客户端验证服务端传来的证书是否通过，如果验证通过，客户端结合 server_params、client_params 利用椭圆曲线（ECDHE）算法计算出预主密钥 pre_random，并用公钥加密传递给服务端，然后结合 server_params、client_params、pre_random 生成最终的会话密钥。其中 server_params、client_params 是客户端和服务端各自用于 ECDHE 算法加密的密钥
 
 4. 服务端收到 被公钥加密 pre_random 后，使用私钥解密，结合 server_params、client_params、pre_random 用同样的方式生成最终的密钥，双方生成密钥后发送收尾消息，告知对方之后的传输采用加密方法列表中指定的方式加密
 
-##### 加密方式
+#### 加密方式
 
 对称加密是指加密和解密时使用的密钥都是同样的密钥，攻击者可以在传输过程中拿到 server_random、server_params 和加密方法列表，就可以轻松破解
 

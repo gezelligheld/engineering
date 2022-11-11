@@ -215,3 +215,6 @@ vite 在开发环境采用 no-bundle 机制，无需构建和分解模块依赖�
 
 - webrtc
 - webgl
+- canvas
+- svg
+- webAssembly

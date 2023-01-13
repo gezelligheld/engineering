@@ -4,25 +4,40 @@
 
 ##### babel
 
-babel 是一个 js 代码转换器，可以将 es6+的代码编译成 es5，使程序能够在低版本浏览器中运行
+babel 是一个 js 代码转换器，分为涉及两个方面的问题
 
-- plugin：babel 将转化功能拆解到多个 plugin 中，plugin 负责对 let、for of 等语法进行 polyfill。首先将源码转化为代码碎片 tokens，再转化为 ast，遍历 ast 将其修改为实际需要的 ast，最后再生成代码。其中遍历 ast 将其修改为实际需要的 ast 这部分就是可以自定义的部分，自定义 plugin 实际上是一个返回值带有 visitor 对象的函数
+- 某些低版本浏览器并没有提供 es6 相关 api 等的语法环境，就需要做降级处理
+- 为浏览器提前注入一些 API 的实现代码，即 Polyfill
 
-- presets：一个 presets 预设了一组 plugin，如@babel/preset-env、@babel/preset-react 等，@babel/preset-env 可以根据开发者配置的 browserlist 最小化的引入 plugin 和 core-js
+相应的分为两类工具
 
-- core-js：通过原型属性或全局注入方法来进行 polyfill
+- 编译时工具，在代码编译阶段进行语法降级及添加 polyfill 代码的引用语句，如 @babel/preset-env、@babel/plugin-transform-runtime
+
+  - plugin：插件负责降级处理语法。首先将源码转化为代码碎片 tokens，再转化为 ast，遍历 ast 将其修改为实际需要的 ast，最后再生成代码。其中遍历 ast 将其修改为实际需要的 ast 这部分就是可以自定义的部分，自定义 plugin 实际上是一个返回值带有 visitor 对象的函数
+  - presets：一个 presets 预设了一组 plugin，如@babel/preset-env、@babel/preset-react 等
+
+- 运行时基础库，如 core-js、regenerator-runtime
+
+  - core-js：提前注入一些 api 的实现来进行 polyfill
+  - regenerator-runtime：core-js 的拾遗补漏，主要是 generator/yield 和 async/await 两组的支持
+
+babel 主要有以下的 polyfill 方式
+
+- @babel/preset-env 可以根据开发者配置的 browserlist 最小化的引入 plugin 和 core-js，缺点在于如果是第三方库全局注入的方式会对全局空间造成污染，且工具函数会重复出现
+- transform-runtime 是更好的方式，包括编译时工具@babel/plugin-transform-runtime 和运行时基础库@babel/runtime，避免了对全局空间的污染和工具函数重复出现
 
 ##### webpack
 
-- 构建流程：Webpack 采用了 bundle 机制，将项目中各种类型的源文件转化供浏览器识别的 js、css、img 等文件，建立源文件之间的依赖关系合并为少数几个 bundle，bundle 机制的工作流程主要分为两步，首先构建模块依赖图，获取入口文件，使用对应 loader 将其转换为浏览器能识别的文件，然后解析为 ast 找到相关依赖，直到所有源文件遍历完成，然后分解模块依赖图，作 tree shaking，分解为 initial chunk、async chunks，并优化其中重复的 module，将多个 chunk 共享的 module 分离到 common chunk 中，最后将 chunk 生成文件。文件包括业务代码、第三方代码以及 runtime 和 manifest 数据。浏览器加载打包后的资源时，文件结果已经不复存在，runtime 和 manifest 数据主要用来解析和加载各个模块
+- 构建流程：Webpack 采用了 bundle 机制，将项目中各种类型的源文件转化供浏览器识别的 js、css、img 等文件，建立源文件之间的依赖关系合并为少数几个 bundle，bundle 机制的工作流程主要分为两步
+
+  - 首先构建模块依赖图，获取入口文件，使用对应 loader 将其转换为浏览器能识别的文件，然后解析为 ast 找到相关依赖，直到所有源文件遍历完成
+  - 然后分解模块依赖图，作 tree shaking，分解为 initial chunk、async chunks，并优化其中重复的 module，将多个 chunk 共享的 module 分离到 common chunk 中，最后将 chunk 生成文件。文件包括业务代码、第三方代码以及 runtime 和 manifest 数据。浏览器加载打包后的资源时，文件结构已经不复存在，runtime 和 manifest 数据主要用来解析和加载各个模块
 
 - 代码分离：chunk 体积过大过小都不合适，有几种可以拆分 chunk 的方式，包括配置入口文件、动态导入、配置 splitChunks 的 cacheGroups 属性
 
 - 缓存：生成的 chunk 名可以基于文件内容生成 hash，当文件修改时浏览器就会请求新的文件从而使缓存无效，及时将变更更新到浏览器中；配置 runtimeChunk 属性可以将 runtime 代码放到一个单独的 chunk 里，这意味着修改文件重新打包时只有对应的 chunk 和 runtime chunk 会发生改变，其他 chunk 不受影响，可以充分利用缓存减少获取资源；第三方库的代码不会频繁修改，可以配置 entry 或 cacheGroup 使其与业务代码分离，减少向服务端获取资源
 
-- 模块热替换：run server 后启动一个本地服务，浏览器访问资源时作出响应，同时建立 websocket 链接。webpack 会监听源文件的变化，当保存文件时触发 webpack 重新编译，生成一个 hash 和 js 文件，并通过 websocket 将 hash 值给客户端，客户端收到后与上一次作比较，如果不一致则请求 manifest 数据去得知那些 chunk 发生了变更，最后通过插入 script 或 style 标签来实现热更新
-
-- tree shaking：基于 esm，在代码没有运行时就知道哪些模块没有引用，从而移除掉，减小代码体积
+- 模块热替换：dev server 启动后建立 websocket 链接，并监听源文件的变化，当保存文件时触发 webpack 重新编译，生成一个 hash 和 js 文件，并通过 websocket 将 hash 值给客户端，客户端收到后与上一次作比较，如果不一致则请求 manifest 数据去得知那些 chunk 发生了变更，最后通过插入 script 或 style 标签来实现热更新
 
 - loader：处理文件，使用对应的 loader 转换文件可以其用 import 导入；自定义 loader 是一个接收对应类型文件代码作为参数、返回转换后的代码的函数；常用的有处理样式的 css-loader、style-loader、postcss-loader 等，处理文件的 raw-loader、file-loader 、url-loader 等，用来编译的 babel-loader、ts-loader，用来校验的 eslint-loader
 
@@ -32,9 +47,25 @@ babel 是一个 js 代码转换器，可以将 es6+的代码编译成 es5，使�
 
 rollup 依赖浏览器对 esm 规范的支持，无需注入其他代码，适合不需要兼容低版本浏览器的应用或 js 库，如果需要适应低版本浏览低需要加 polyfill
 
+##### esbuild
+
+基于 Golang 开发的一款打包工具，在构建速度上可以比传统工具快 10~100 倍，但存在一些缺点如不支持降级到 ES5、不提供操作打包产物的接口、不支持自定义 Code Splitting 策略等
+
 ##### vite
 
-vite 在开发环境采用 no-bundle 机制，无需构建和分解模块依赖图，利用浏览器对 esm 规范的支持去加载文件，在冷启动和热更新方面远远超过 webpack；在生产环境采用 rollup 打包
+- vite vs webpack：vite 在开发环境采用 no-bundle 机制，无需构建和分解模块依赖图，利用浏览器对 esm 规范的支持去加载文件，还借助 Esbuild 超快的编译速度来做第三方库构建和 TS/JSX 语法编译，在冷启动和热更新方面远超 webpack
+
+- 双引擎架构
+
+  - Esbuild：用于依赖预构建、单文件编译、代码压缩等，性能远超 js
+  - Rollup：用于生产环境打包等，出于功能性和稳定性考虑 Rollup 相比于 Esbuild 更适合生产环境打包
+
+- 模块热替换：dev server 启动后监听文件变更，如果配置文件或环境变量文件变更，自动重启服务；如果是普通文件变更，通过 websocket 将模块更新信息传给客户端，客户端通过动态 import 拉取最新的模块内容
+
+- 依赖预构建：dev server 启动时会进行依赖预构建，主要做了两件事
+
+  - 将其他格式转换为 esm 格式，某些依赖的第三方库并没有 esm 产物
+  - 打包第三方库的代码，每个 import 都会触发一次新的文件请求，需要合并以免请求过多
 
 #### 跨端
 
@@ -104,6 +135,14 @@ nodejs 提供了 js 在服务端的运行时，遵循 commonjs 规范，主要�
   - merge & rebase：merge 会产生一条合并的 commit，只需要解决一次冲突，适合向公共分支合并；rebase 需要多次修改冲突，依次使用 git add 、git rebase --continue 的方式来处理冲突，完成 rebase 的过程，git 树不会分叉，适合公共分支向其他分支合并
 
 - 工作流：从 master 拉开发分支 dev，多人协作开发时创建自己的 feature 分支，完成开发后合并到 dev 分支。提测后基于 dev 分支拉 release 分支，当测试过程中发现 bug，将变更提交到 release 分支，完成测试后合并到 dev 分支。发布后将 dev 合并到 master，如果之后发现了线上问题需要修改，基于 master 拉 hotfix 分支，修复完成后合并到 master
+
+##### 代码规范
+
+- ESLint：代码风格检查
+- Stylelint：样式代码风格检查
+- Prettier：代码格式化
+- Git 提交工作流：Husky 可以拦截 git commit 命令，用于提交前做代码检查；lint-staged 用于增量 lint 检查，不用每次都全量扫描
+- commit 信息规范
 
 #### 计算机网络
 
@@ -188,21 +227,21 @@ nodejs 提供了 js 在服务端的运行时，遵循 commonjs 规范，主要�
 
 ##### 跨域
 
-- 为什么存在：浏览器出于安全考虑有同源策略，即协议、主机、端口有一个不同就是跨域，当检测到跨域并且没有 cors 响应头，会将响应体丢掉
+- 概念：浏览器出于安全考虑有同源策略，即协议、主机、端口有一个不同就是跨域，当检测到跨域并且没有 cors 响应头，会将响应体丢掉
 
-- cors：跨域资源共享，简单请求时请求头自动添加 Origin 字段表明来源，如果 Origin 没有被包含在响应头的 Access-Control-Allow-Origin 中，响应就会被拦截；非简单请求额外多了一个请求方法为 OPTIONS 的预检请求，用来询问服务端是否允许连接
+- 措施
 
-- jsonp：script 标签没有跨域限制，通过 src 填上目标地址从而发出 GET 请求
-
-- 反向代理：反向代理服务器如 nginx。反向代理是将客户端的请求转发给目标服务器，而正向代理是帮助浏览器访问目标服务器
+  - cors：跨域资源共享，简单请求时请求头自动添加 Origin 字段表明来源，如果 Origin 没有被包含在响应头的 Access-Control-Allow-Origin 中，响应就会被拦截；非简单请求额外多了一个请求方法为 OPTIONS 的预检请求，用来询问服务端是否允许连接
+  - jsonp：script 标签没有跨域限制，通过 src 填上目标地址从而发出 GET 请求
+  - 反向代理：利用反向代理服务器如 nginx。反向代理是将客户端的请求转发给目标服务器，而正向代理是帮助浏览器访问目标服务器
 
 ##### DNS
 
 一种域名和 IP 的转换服务，当输入www.bilibili.com后，查找IP的过程如下
 
-- 首先检查浏览器和本地 host 文件是否有对应的记录，如果有直接使用，否则向本地 DNS 服务器查询，如果本地 DNS 服务器有对应的缓存就使用。上述过程是递归查找的过程，请求一次就会自动查找
+1. 首先检查浏览器和本地 host 文件是否有对应的记录，如果有直接使用，否则向本地 DNS 服务器查询，如果本地 DNS 服务器有对应的缓存就使用。上述过程是递归查找的过程，请求一次就会自动查找
 
-- 上述情况都没找到的话，本地 DNS 服务器就会向根域名服务器查找 com 顶级域名服务器地址，然后向顶级域名服务器查找 bilibili.com 权威域名服务器地址，接着向权威域名服务器查找www.bilibili.com域名服务器地址，这就是最终的IP，本地 DNS 服务器缓存后返回给浏览器。上述过程是迭代查找的过程，需要请求多次
+2. 上述情况都没找到的话，本地 DNS 服务器就会向根域名服务器查找 com 顶级域名服务器地址，然后向顶级域名服务器查找 bilibili.com 权威域名服务器地址，接着向权威域名服务器查找www.bilibili.com域名服务器地址，这就是最终的IP，本地 DNS 服务器缓存后返回给浏览器。上述过程是迭代查找的过程，需要请求多次
 
 #### 浏览器
 
@@ -323,6 +362,7 @@ v8 解析 js 时如果遇到热点代码会直接编译成机器码执行，但�
 ##### 网站性能优化概述
 
 - 网络层面，主要是 http 请求方面
+  - DNS 预解析：dns-prefetch
   - 减少请求次数
     - 只请求当前所需要的资源，如路由动态导入、图片懒加载等
     - 资源不宜过小，尽量合并
@@ -334,10 +374,9 @@ v8 解析 js 时如果遇到热点代码会直接编译成机器码执行，但�
     - 兼顾大小和效果选择合适的图片格式和分辨率
     - 控制 cookie 大小
     - cdn 加速
-    - http 缓存
 - 浏览器层面
   - 浏览器缓存
-  - 服务端渲染
+  - 预渲染，包括服务端渲染、静态站点生成等
   - 预加载
 
 #### 测试

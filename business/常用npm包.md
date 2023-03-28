@@ -43,3 +43,5 @@
 [simplebar-react](https://www.npmjs.com/package/simplebar-react)：滚动容器
 
 [react-color](https://www.npmjs.com/package/react-color)：颜色选择器
+
+[React-Grid-Layout](https://www.npmjs.com/package/react-grid-layout)：拖拽并自动布局

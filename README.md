@@ -30,18 +30,28 @@ babel 主要有以下的 polyfill 方式
 
 - 构建流程：Webpack 采用了 bundle 机制，将项目中各种类型的源文件转化供浏览器识别的 js、css、img 等文件，建立源文件之间的依赖关系合并为少数几个 bundle，bundle 机制的工作流程主要分为两步
 
-  - 首先构建模块依赖图，获取入口文件，使用对应 loader 将其转换为浏览器能识别的文件，然后解析为 ast 找到相关依赖，直到所有源文件遍历完成
-  - 然后分解模块依赖图，作 tree shaking，分解为 initial chunk、async chunks，并优化其中重复的 module，将多个 chunk 共享的 module 分离到 common chunk 中，最后将 chunk 生成文件。文件包括业务代码、第三方代码以及 runtime 和 manifest 数据。浏览器加载打包后的资源时，文件结构已经不复存在，runtime 和 manifest 数据主要用来解析和加载各个模块
+  1. 首先构建模块依赖图，获取入口文件，使用对应 loader 将其转换为浏览器能识别的文件，然后解析为 ast 找到相关依赖，直到所有源文件遍历完成
+  2. 然后分解模块依赖图，作 tree shaking，分解为 initial chunk、async chunks，并优化其中重复的 module，将多个 chunk 共享的 module 分离到 common chunk 中，最后将 chunk 生成文件。文件包括业务代码、第三方代码以及 runtime 和 manifest 数据。浏览器加载打包后的资源时，文件结构已经不复存在，runtime 和 manifest 数据主要用来解析和加载各个模块
 
 - 代码分离：chunk 体积过大过小都不合适，有几种可以拆分 chunk 的方式，包括配置入口文件、动态导入、配置 splitChunks 的 cacheGroups 属性
 
-- 缓存：生成的 chunk 名可以基于文件内容生成 hash，当文件修改时浏览器就会请求新的文件从而使缓存无效，及时将变更更新到浏览器中；配置 runtimeChunk 属性可以将 runtime 代码放到一个单独的 chunk 里，这意味着修改文件重新打包时只有对应的 chunk 和 runtime chunk 会发生改变，其他 chunk 不受影响，可以充分利用缓存减少获取资源；第三方库的代码不会频繁修改，可以配置 entry 或 cacheGroup 使其与业务代码分离，减少向服务端获取资源
+- 缓存
+
+  - runtimeChunk：生成的 chunk 名可以基于文件内容生成 hash，当文件修改时浏览器就会请求新的文件从而使缓存无效，及时将变更更新到浏览器中；配置 runtimeChunk 属性可以将 runtime 代码放到一个单独的 chunk 里，这意味着修改文件重新打包时只有对应的 chunk 和 runtime chunk 会发生改变，其他 chunk 不受影响，可以充分利用缓存减少获取资源
+  - 第三方库的代码不会频繁修改，可以配置 entry 或 cacheGroup 使其与业务代码分离，减少向服务端获取资源
+  - 持久化缓存：配置 cache 开启构建结果缓存到本地磁盘，加快二次构建速度
 
 - 模块热替换：dev server 启动后建立 websocket 链接，并监听源文件的变化，当保存文件时触发 webpack 重新编译，生成一个 hash 和 js 文件，并通过 websocket 将 hash 值给客户端，客户端收到后与上一次作比较，如果不一致则请求 manifest 数据去得知那些 chunk 发生了变更，最后通过插入 script 或 style 标签来实现热更新
 
-- loader：处理文件，使用对应的 loader 转换文件可以其用 import 导入；自定义 loader 是一个接收对应类型文件代码作为参数、返回转换后的代码的函数；常用的有处理样式的 css-loader、style-loader、postcss-loader 等，处理文件的 raw-loader、file-loader 、url-loader 等，用来编译的 babel-loader、ts-loader，用来校验的 eslint-loader
+- loader：处理文件，使用对应的 loader 转换文件可以其用 import 导入
 
-- plugin：用于扩展 webpack 的功能，可以在 webpack 构建过程中广播出来的事件里做更多的事情；自定义 plugin 是一个含有接收 complier 实例作为参数的 apply 方法的类，可以订阅构建过程中抛出来的事件；常用的有构建时定义全局变量的 DefinePlugin、指定某个第三方库不被打包的 IgnorePlugin、压缩 js 的 terser-webpack-plugin、抽离 css 用 link 引入的 mini-css-extract-plugin、可视化分析打包文件体积的 webpack-bundle-analyzer、自动生成 html 的 html-webpack-plugin
+  - 自定义 loader 是一个接收对应类型文件代码作为参数、返回转换后的代码的函数
+  - 常用的有处理样式的 css-loader、style-loader、postcss-loader 等，处理文件的 raw-loader、file-loader 、url-loader 等，用来编译的 babel-loader、ts-loader，用来校验的 eslint-loader
+
+- plugin：用于扩展 webpack 的功能，可以在 webpack 构建过程中广播出来的事件里做更多的事情
+
+  - 自定义 plugin 是一个含有接收 complier 实例作为参数的 apply 方法的类，可以订阅构建过程中抛出来的事件
+  - 常用的有构建时定义全局变量的 DefinePlugin、指定某个第三方库不被打包的 IgnorePlugin、压缩 js 的 terser-webpack-plugin、抽离 css 用 link 引入的 mini-css-extract-plugin、可视化分析打包文件体积的 webpack-bundle-analyzer、自动生成 html 的 html-webpack-plugin
 
 ##### rollup
 
@@ -110,16 +120,13 @@ rollup 依赖浏览器对 esm 规范的支持，无需注入其他代码，适�
   - WXSS：在CSS的基础上做了扩充，新增可以自适应的尺寸单位rpx，支持导入样式。内置的编译器会解析样式文件间的引用关系、将rpx转为px，用于生成css
   - WXS：小程序脚本语言，语法类似es5，可以不通过逻辑层直接作用于渲染层
 
-- 生命周期
+- 组件
 
-  - 页面生命周期
-  - 组件生命周期
-
-- 数据通信
-
-  - 页面间通信
-  - 组件间通信
-  - 组件和页面间通信
+  - 生命周期：created（组件实例创建）-> attached（组件初始化完成）-> ready（组件布局完成）--> detached（组件从节点树移除）
+  - 逻辑抽离和复用：behaviors，类似混入，可以将behaviors中的状态和方法合并到调用方，还支持组件扩展
+  - 事件通信：triggerEvent
+  - 组件模型：与WebComponents标准中的ShadowDOM类似，默认有自己的样式作用域
+  - 原生组件：类似map这样的原生组件WebView只渲染一个占位元素，其余交由客户端原生处理，性能更好
 
 - 性能优化
 
@@ -175,6 +182,7 @@ nodejs 提供了 js 在服务端的运行时，遵循 commonjs 规范，主要�
 - 网络操作：内置的 http、http2、https 模块可以用来构建 web server
 
 - 相关框架
+
   - express：第一代流行的 nodejs 框架，主要是对 http 模块进行封装，中间件线性调用，功能高度集成，不够灵活
   - koa：相比于 express，没有内置中间件，且中间件呈洋葱模型，灵活度更高
   - egg.js：基于 koa 封装，相比于 express 和 koa，egg 增加了一些规则约束
@@ -196,7 +204,12 @@ nodejs 提供了 js 在服务端的运行时，遵循 commonjs 规范，主要�
   - reset & revert：reset 用于本地变更回滚，重置 add 或 commit 后的变更；revert 用于撤销已经提交到远程仓库的 commit，会生成一个撤销的 commit
   - merge & rebase：merge 会产生一条合并的 commit，只需要解决一次冲突，适合向公共分支合并；rebase 需要多次修改冲突，依次使用 git add 、git rebase --continue 的方式来处理冲突，完成 rebase 的过程，git 树不会分叉，适合公共分支向其他分支合并
 
-- 工作流：从 master 拉开发分支 dev，多人协作开发时创建自己的 feature 分支，完成开发后合并到 dev 分支。提测后基于 dev 分支拉 release 分支，当测试过程中发现 bug，将变更提交到 release 分支，完成测试后合并到 dev 分支。发布后将 dev 合并到 master，如果之后发现了线上问题需要修改，基于 master 拉 hotfix 分支，修复完成后合并到 master
+- 工作流
+
+  1. 从 master 拉开发分支 dev，多人协作开发时创建自己的 feature 分支，完成开发后合并到 dev 分支
+  2. 提测后基于 master 分支拉 release 分支，再将 dev 分支合并。当测试过程中发现 bug，将变更提交到 dev 分支，再合并到 release 分支
+  3. 灰度或上线时将 dev 合并到 master
+  4. 上线后如果发现了线上问题需要修改，基于 master 拉 hotfix 分支，修复完成后合并到 master
 
 ##### 代码规范
 
@@ -283,7 +296,7 @@ nodejs 提供了 js 在服务端的运行时，遵循 commonjs 规范，主要�
 
 ##### websocket
 
-- 为什么需要：短轮询和长轮询的开销都比较大，websocket 一次握手之后就可以持久连接
+- 优势：短轮询和长轮询的开销都比较大，websocket 一次握手之后就可以持久连接
 
 - 连接过程：客户端发起请求，告知服务端要升级为 websocket 协议及其协议版本，服务器确认协议版本并返回 101 状态码表示协议切换成功
 

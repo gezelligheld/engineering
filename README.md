@@ -459,6 +459,5 @@ v8 解析 js 时如果遇到热点代码会直接编译成机器码执行，但�
 #### todo
 
 - threejs
-- 数据库
 - nodejs
-- nginx
+- docker

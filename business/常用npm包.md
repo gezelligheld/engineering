@@ -34,6 +34,8 @@
 
 [konva](https://www.npmjs.com/package/konva)：canvas 库，还有 react-konva 可以以组件的形式调用 canvas 库
 
+[fabric]()：类似 konva 的 canvas 库，还支持自由绘制
+
 [lottie-web](https://www.npmjs.com/package/lottie-react-web)：以 json 的形式配置动画
 
 [query-string](https://www.npmjs.com/package/query-string)：解析 URL
@@ -45,3 +47,5 @@
 [react-color](https://www.npmjs.com/package/react-color)：颜色选择器
 
 [React-Grid-Layout](https://www.npmjs.com/package/react-grid-layout)：拖拽并自动布局
+
+[moveable]()：可拖动的、可调整大小的、可缩放的、可旋转的、可弯曲的、可收缩的、可分组的、可对齐的插件（操作的是 dom）

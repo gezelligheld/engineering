@@ -71,7 +71,13 @@ scripts 字段定义的对象属性值可以通过 npm run 运行脚本
 
 #### 定义项目入口
 
-main 字段用来指定加载的入口文件，当不指定 main 字段时，默认值是模块根目录下面的 index.js 文件。假如你的项目是一个 npm 包，当用户安装你的包后，require('my-module') 返回的是 main 字段中所列出文件的 module.exports 属性
+- main：用来指定加载的入口文件，即编译后生成的满足 commonjs 规范的代码。当不指定 main 字段时，默认值是模块根目录下面的 index.js 文件。假如你的项目是一个 npm 包，当用户安装你的包后，require('my-module') 返回的是 main 字段中所列出文件的 module.exports 属性
+
+- module：用来指定加载的入口文件，即编译后生成的满足 es module 规范的代码。假如你的项目是一个 npm 包，当用户安装你的包，import my-module from 'my-module'会优先使用 module 字段中所列出文件的 export default 抛出的内容（比 main 的优先级更高）
+
+- browser：用来指定加载的入口文件，即编译后生成的满足 umd 规范的代码，可以用于浏览器环境和 nodejs 环境
+
+- typings：指定 TypeScript 的入口文件
 
 #### 发布文件配置
 

@@ -6,7 +6,8 @@ Docker Compose 是 Docker 官方编排项目之一，进行多容器应用的部
 # docker-compose版本
 version: '3'
 
-services: # 声明容器
+# 声明容器
+services:
    db: # 容器名称
      image: mysql:5.7 # 镜像，如果像自定义镜像可以不指定这个参数，而用 build
      build: . # 根据Dockerfile配置构建镜像
@@ -44,15 +45,17 @@ services: # 声明容器
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: wordpress
 
-volumes: # 可选，需要创建的数据卷，类似 docker volume create
+# 可选，需要创建的数据卷，类似 docker volume create
+volumes:
   db_data:
 
-networks: # 可选，需要创建的网络，类似 docker network create
+# 可选，需要创建的网络，类似 docker network create
+networks:
 ```
 
 然后运行容器
 
-```
+```bash
 docker-compose up -d
 ```
 

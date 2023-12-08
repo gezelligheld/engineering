@@ -6,7 +6,7 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类
 
 - 100（Continue） 客户端应继续该请求
 
-- 101（Switching Protocols） 服务器根据客户端的请求切换协议。在 HTTP 升级为 WebSocket 的时候，如果服务器同意变更，就会发送状态码 101
+- 101（Switching Protocols） 服务器根据客户端的请求切换协议。在 HTTP 切换为 WebSocket 的时候，如果服务器同意变更，就会发送状态码 101
 
 #### 2\*\*
 

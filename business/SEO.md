@@ -74,9 +74,25 @@ Sitemap: https://xxx.xml
 
 - 丰富网站内容：从长期来看丰富的网站内容可以吸引更多用户访问我们的网站，从而提升排名
 
-#### 从客户端渲染到服务端渲染的渐进式方案选择
+#### 从客户端渲染到服务端渲染的方案选择
 
 ![](../assets/app-rendering-types.png)
+
+- 客户端渲染（CSR）：使用JS直接在浏览器中呈现网页，所有的逻辑都在客户端处理（FCP：请求内容首次可见时间，TTI：可交互时间）
+
+![](../assets/diagram-showing-client.png)
+
+- 预渲染（CSR with prerendering）：单纯的依靠客户端渲染在复杂的页面或移动设备上很难保持快速运行，可以通过 PRPL 模式进行优化，包括依靠预渲染（preload）加载关键资源、尽快渲染初始路线、缓存、延迟加载非关键资源，其中尽快渲染初始路线是指通过只使用首屏所需的css和js、使用 async 来内嵌关键 JavaScript 并推迟其余 JavaScript等方式加快渲染，最终减少了FCP和TTI的时间
+
+- 注水（SSR with hydration）：这是一种同时处理客户端渲染与服务器端渲染之间的权衡的方法，整体的HTML结构由服务端渲染，然后由客户端将其他内容嵌入到该结构中，有利于提升FCP。流式传输可以分块传输HTML。从而加快FCP，但这种方案可能对TTI不利
+
+- 静态的服务端渲染（Static SSR）：服务端会提前为每个网址生成单独的 HTML 文件，并上传到CDN，提供更快速的FCP和TTI
+
+![](../assets/diagram-showing-static.png)
+
+- 服务端渲染（SSR）：服务器端渲染会为服务器上的网页生成完整的 HTML，极大的提升了FCP和TTI，但是在服务器上生成网页需要花费时间，增加了TTFB（从点击链接到新网页上加载内容的第一个字节间隔的时间）
+
+![](../assets/diagram-showing-server.png)
 
 参考：
 1. [Google搜索中心](https://developers.google.cn/search/docs?hl=zh-cn)
